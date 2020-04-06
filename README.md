@@ -2,7 +2,7 @@
 
 Source code coming soon, for now please use the last released binary.
 
-# The Sensate Firmware for ESP8266 currently uses the following Libraries:
+# The Sensate Firmware for ESP32 currently uses the following Libraries:
 
 - Arduino IDE Base Library (https://github.com/esp8266/Arduino v2.5.0)
 - ArduinoJson (https://github.com/bblanchon/ArduinoJson v5.13.5)
