@@ -3,7 +3,7 @@
     @file     SensorCalculation.h
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP8266 firmware is used to connect ESP8266 based hardware 
+    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
     with the Sensate Cloud and the Sensate apps.
 
     ----> https://www.sensate.io
@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
 /**************************************************************************/
@@ -130,6 +131,12 @@ class SensorCalculationDirectPPM : public SensorCalculation  {
     Data* calculate(Sensor* sensor, float, bool);
 };
 
+class SensorCalculationDirectWpm2 : public SensorCalculation  {
+  public:
+    SensorCalculationDirectWpm2(int);
+    Data* calculate(Sensor* sensor, float, bool);
+};
+
 class SensorCalculationCalcAltitude : public SensorCalculation  {
   public:
     SensorCalculationCalcAltitude(int);
@@ -147,6 +154,7 @@ class SensorCalculationRawToPercent : public SensorCalculation  {
 class SensorCalculationRaw : public SensorCalculation  {
   public:
     SensorCalculationRaw(int);
+    SensorCalculationRaw(int, String);
     Data* calculate(Sensor* sensor, float, bool);
     Data* calculate(Sensor* sensor, bool, bool);
 };

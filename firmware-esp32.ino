@@ -3,7 +3,7 @@
     @file     firmware-esp32.ino
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP8266 firmware is used to connect ESP8266 based hardware 
+    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
     with the Sensate Cloud and the Sensate apps.
 
     ----> https://www.sensate.io
@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp32.git
 
     @section  HISTORY
+    v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
 /**************************************************************************/
@@ -23,17 +24,29 @@
 
 Display* display = NULL;
 
-int currentVersion = 34; 
+int currentVersion = 35; 
 boolean printMemory = false;
 
 String board = "Generic";
 char firmwareType[] = "ESP32";
 
-// String board = "DevModule";
-// char firmwareType[] = "ESP32-Dev";
+// String board = "M5StickC";
+// char firmwareType[] = "ESP32-M5StickC";
+
+// String board = "DevKitC";
+// char firmwareType[] = "ESP32-DevKitC";
+
+// String board = "ESP32S";
+// char firmwareType[] = "ESP32-S";
+
+// String board = "ESP-WROOM-32";
+// char firmwareType[] = "ESP32-WROOM";
+
+// String board = "M5StickC";
+// char firmwareType[] = "ESP32-M5StickC";
 
 extern String name = "Bridge";
-extern String type = "ESP32";
+extern String ucType = "ESP32";
 
 String variant = "SensateV"+String(currentVersion)+board;
 

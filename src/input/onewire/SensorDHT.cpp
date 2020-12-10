@@ -3,7 +3,7 @@
     @file     SensorDHT.cpp
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP8266 firmware is used to connect ESP8266 based hardware 
+    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
     with the Sensate Cloud and the Sensate apps.
 
     ----> https://www.sensate.io
@@ -82,9 +82,7 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   if(port==0)
   {
     if(!initDHT0)
-    {    
-      if(type!=DHT11)
-        portFix(port);  
+    {     
       initDHT0=true;
       dht0 = new DHT_Unified(0, type);
       dht0->begin();
@@ -94,9 +92,7 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   else if(port==1)
   {
     if(!initDHT1)
-    {    
-      if(type!=DHT11)
-        portFix(port);  
+    {     
       initDHT1=true;
       dht1 = new DHT_Unified(1, type);
       dht1->begin();
@@ -107,8 +103,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT2)
     {
-      if(type!=DHT11)
-        portFix(port);  
       initDHT2=true;
       dht2 = new DHT_Unified(2, type);
       dht2->begin();
@@ -118,9 +112,7 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   else if(port==3)
   {
     if(!initDHT3)
-    {    
-      if(type!=DHT11)
-        portFix(port);  
+    {     
       initDHT3=true;
       dht3 = new DHT_Unified(3, type);
       dht3->begin();
@@ -133,9 +125,7 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   else if(port==4)
   {
     if(!initDHT4)
-    {    
-      if(type!=DHT11)
-        portFix(port);  
+    {     
       initDHT4=true;
       dht4 = new DHT_Unified(4, type);
       dht4->begin();
@@ -146,8 +136,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT5)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT5=true;
       dht5 = new DHT_Unified(5, type);
       dht5->begin();
@@ -161,8 +149,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT12)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT12=true;
       dht12 = new DHT_Unified(12, type);
       dht12->begin();
@@ -173,8 +159,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT13)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT13=true;
       dht13 = new DHT_Unified(13, type);
       dht13->begin();
@@ -185,8 +169,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT14)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT14=true;
       dht14 = new DHT_Unified(14, type);
       dht14->begin();
@@ -197,8 +179,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT15)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT15=true;
       dht15 = new DHT_Unified(15, type);
       dht15->begin();
@@ -209,8 +189,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT16)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT16=true;
       dht16 = new DHT_Unified(16, type);
       dht16->begin();
@@ -220,9 +198,7 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   else if(port==17)
   {
     if(!initDHT17)
-    {    
-      if(type!=DHT11)
-        portFix(port);  
+    {     
       initDHT17=true;
       dht17 = new DHT_Unified(17, type);
       dht17->begin();
@@ -233,8 +209,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT18)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT18=true;
       dht18 = new DHT_Unified(18, type);
       dht18->begin();
@@ -244,9 +218,7 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   else if(port==19)
   {
     if(!initDHT19)
-    {    
-      if(type!=DHT11)
-        portFix(port);  
+    {     
       initDHT19=true;
       dht19 = new DHT_Unified(19, type);
       dht19->begin();
@@ -257,8 +229,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT21)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT21=true;
       dht21 = new DHT_Unified(21, type);
       dht21->begin();
@@ -269,8 +239,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT22)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT22=true;
       dht22 = new DHT_Unified(22, type);
       dht22->begin();
@@ -281,8 +249,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT23)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT23=true;
       dht23 = new DHT_Unified(23, type);
       dht23->begin();
@@ -293,8 +259,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT25)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT25=true;
       dht25 = new DHT_Unified(25, type);
       dht25->begin();
@@ -303,10 +267,9 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   }
   else if(port==26)
   {
+    Serial.println("init dht port 26!");
     if(!initDHT26)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT26=true;
       dht26 = new DHT_Unified(26, type);
       dht26->begin();
@@ -316,9 +279,7 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   else if(port==27)
   {
     if(!initDHT27)
-    {    
-      if(type!=DHT11)
-        portFix(port);  
+    {     
       initDHT27=true;
       dht27 = new DHT_Unified(27, type);
       dht27->begin();
@@ -329,8 +290,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   {
     if(!initDHT32)
     {    
-      if(type!=DHT11)
-        portFix(port);  
       initDHT32=true;
       dht32 = new DHT_Unified(32, type);
       dht32->begin();
@@ -340,9 +299,7 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
   else if(port==33)
   {
     if(!initDHT33)
-    {    
-      if(type!=DHT11)
-        portFix(port);  
+    {     
       initDHT33=true;
       dht33 = new DHT_Unified(33, type);
       dht33->begin();
@@ -350,14 +307,6 @@ SensorDHT::SensorDHT (long id, String category, String shortName, String name, S
     dht = dht33;
   }
   
-}
-
-void SensorDHT::portFix(uint8_t port)
-{
-  pinMode(port, OUTPUT);
-  digitalWrite(port, LOW);
-  delay(20);
-  pinMode(port, INPUT);
 }
 
 void SensorDHT::preCycle(int cycleId)

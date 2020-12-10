@@ -3,7 +3,7 @@
     @file     Bridge.cpp
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP8266 firmware is used to connect ESP8266 based hardware 
+    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
     with the Sensate Cloud and the Sensate apps.
 
     ----> https://www.sensate.io
@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
 /**************************************************************************/
@@ -37,7 +38,7 @@ extern struct rst_info resetInfo;
 
 extern String name;
 extern String board;
-extern String type;
+extern String ucType;
 
 extern long powerOnDelay;
 extern String powerSavePort;
@@ -53,8 +54,7 @@ unsigned long nextSensorDue = -1;
 
 char pwdHash[41] = "";
 
-#define ssl_fingerprint_prod "E9 A9 3D E2 AD AB C2 96 FA 3C A7 A8 57 DE 8E A0 95 59 9B 7A" //hub.sensate.cloud
-#define ssl_fingerprint_test "E3 19 E5 F3 DA 1A BD 01 EB BC 08 E6 49 18 7D 54 66 BD 2B 12" //test.sensate.cloud
+#define ssl_fingerprint_prod "E9 A9 3D E2 AD AB C2 96 FA 3C A7 A8 57 DE 8E A0 95 59 9B 7A" 
 #define maxSensorCount 25
 
 String bridgeURL;
@@ -68,6 +68,52 @@ bool serverError = false;
 int registerRetry = 0;
 int configRetry = 0;
 int sensorCycle = 1;
+
+const char* prodCertificate =  //hub.sensate.cloud
+"-----BEGIN CERTIFICATE-----\n" \
+"MIIDdjCCAl4CCQC/NxFNyZE79DANBgkqhkiG9w0BAQsFADB9MQswCQYDVQQGEwJB\n" \
+"VDEPMA0GA1UECAwGU3R5cmlhMRAwDgYDVQQHDAdMaWVib2NoMRAwDgYDVQQKDAdT\n" \
+"ZW5zYXRlMRowGAYDVQQDDBFodWIuc2Vuc2F0ZS5jbG91ZDEdMBsGCSqGSIb3DQEJ\n" \
+"ARYOc3NsQHNlbnNhdGUuaW8wHhcNMTkwMjEyMTAwNTM2WhcNNDQwMjA2MTAwNTM2\n" \
+"WjB9MQswCQYDVQQGEwJBVDEPMA0GA1UECAwGU3R5cmlhMRAwDgYDVQQHDAdMaWVi\n" \
+"b2NoMRAwDgYDVQQKDAdTZW5zYXRlMRowGAYDVQQDDBFodWIuc2Vuc2F0ZS5jbG91\n" \
+"ZDEdMBsGCSqGSIb3DQEJARYOc3NsQHNlbnNhdGUuaW8wggEiMA0GCSqGSIb3DQEB\n" \
+"AQUAA4IBDwAwggEKAoIBAQDI6b3TMr6GEF8ZwvoB7n7osTtaBSmXclgKy43UhlGD\n" \
+"JY+tT9U6UmEiyvuEp7Tr2P4qgCPLeOXPyrOCSsTi5dg5AsPHW43SNAOVxeNkI92O\n" \
+"EyNVmRrJ1+wEIDe1PZNkwMYKznNEnW/4sTCSE6S2YuMc1vcfipO54Tiae35FcXLQ\n" \
+"z3CPn9aFj3TSJJoIoW5af43LqckHG5mIk0KrcsQoWDS7N121ojhfC5F3sanivYCv\n" \
+"02DZMrda51flcbj8Y+19SvBSio7ixqQOF1dhmkSGe/BnMNnzPu7kCwqjKu5OocU8\n" \
+"Vn2jKv0uVGu+z7eVsSlSFZMUbS5e7BrCzT3X6HZ2S8crAgMBAAEwDQYJKoZIhvcN\n" \
+"AQELBQADggEBAIYsG9Pojfut07kn8+DGAD1rcQYV10JbASuUGyjo1FKLGWYOIEUO\n" \
+"UlpTnUISkEhVxZw18fYOSzPPmDwNVbKK+MNZisvWDWH+zU+a8GQIeTavHcD9LAMh\n" \
+"dRY1JjvSHCyb6ECxVBxHzIAQ7k1wQfzfOsMaI6FegIVobi7wtlBGeQPDRTS07iRE\n" \
+"UzZS5kRDRnB7p64De1kO96xksP7mIMstiOPl8e7IybSM4WzYfC2lTlaueHtlk/hY\n" \
+"NvtYO2Dq6j00CnZV6GXdgaQFnNA0jO9NNP73LtK16NC4R7ZmZni3vAGYYgxDjA7W\n" \
+"6AF7R/S+doCrQtJmcRYgndSEKypzzBmrI+U=\n" \
+"-----END CERTIFICATE-----\n";
+
+const char* testCertificate =  //test.sensate.cloud
+"-----BEGIN CERTIFICATE-----\n" \
+"MIIDgDCCAmgCCQC8slY1nFphgDANBgkqhkiG9w0BAQsFADCBgTELMAkGA1UEBhMC\n" \
+"QVQxDzANBgNVBAgMBlN0eXJpYTEQMA4GA1UEBwwHTGllYm9jaDEQMA4GA1UECgwH\n" \
+"U2Vuc2F0ZTEbMBkGA1UEAwwSdGVzdC5zZW5zYXRlLmNsb3VkMSAwHgYJKoZIhvcN\n" \
+"AQkBFhFtYW51ZWxAc2Vuc2F0ZS5pbzAeFw0xOTAzMTUxMTQ3MDhaFw00NDAzMDgx\n" \
+"MTQ3MDhaMIGBMQswCQYDVQQGEwJBVDEPMA0GA1UECAwGU3R5cmlhMRAwDgYDVQQH\n" \
+"DAdMaWVib2NoMRAwDgYDVQQKDAdTZW5zYXRlMRswGQYDVQQDDBJ0ZXN0LnNlbnNh\n" \
+"dGUuY2xvdWQxIDAeBgkqhkiG9w0BCQEWEW1hbnVlbEBzZW5zYXRlLmlvMIIBIjAN\n" \
+"BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoZIi16mwZKogWseSg/3eoEry2nRW\n" \
+"vFzg52ebHxaWNumRhXhvt9EskDn7GtSTD505X2oVeBagJiWAyBZYBP9MdJwyLYMe\n" \
+"SyWxozB0pxfuxnTc4uPcgvKghALe3ttjy6aEAaPHP2aiPAdb1K6cfBFJbNJBZEAB\n" \
+"50JHS9TdLNlm7Zp5rLe/mOgyH2mhiMu8kHMCU5k3V3Q1qE8wGQWWB3Ji7O6Dqnly\n" \
+"tb1hkWf5Gj4ir0lyQOb+V+2qYjdh8k0ipiSAKH5IJ+RPQKTzMJcvEcD+sXMzaGK+\n" \
+"IVMCn7RXqkGwOdKaeLuBprgG34EfucPC5r9IHTbu+m6ExLccqhhhr8/ybwIDAQAB\n" \
+"MA0GCSqGSIb3DQEBCwUAA4IBAQBMbPgA5a1aTbMobKxCI6/3n+B8oWL3cLCSBLop\n" \
+"uWYO7s/jvfwXDIECbzHDx9+GnCiER9gTvvRh7lWveHPfhyL9caM3Blt8KyQ/Bpul\n" \
+"zylxMB2O5hJqLzudTubCeqK9GjRab4MSPf6RjGyzsLeSZ1ZQEDifwaOsHTTBHGOo\n" \
+"eGljv8ejTtBXBGbyQaFTS9/+IHH/ZUibcUNYStXjjYvyUCo/FumWkjEiFGbEgqPc\n" \
+"SaY5+TtGdCikUpr0nE2j8wr4jXyFp2IuY1NvbcR2or/yOgFaxEjgJfL3ruIoB2Y9\n" \
+"mshx5oPkM80P0lIyYSqbX9EEeQmAiQkWR1CJ4n/Kk/ubNW/F\n" \
+"-----END CERTIFICATE-----\n";
 
 bool registerBridge()
 {
@@ -91,9 +137,9 @@ bool registerBridge()
       String urlString = bridgeURL + "/" + apiVersion + "/bridge/";
 
       if(urlString.startsWith("https://hub"))
-        httpClient.begin(urlString, ssl_fingerprint_prod);
+        httpClient.begin(urlString, prodCertificate);
       else if(urlString.startsWith("https://test"))
-        httpClient.begin(urlString, ssl_fingerprint_test);
+        httpClient.begin(urlString, testCertificate);
       else
         httpClient.begin(urlString);
         
@@ -107,7 +153,7 @@ bool registerBridge()
         pwdHashString = String(pwdHashString);
       }
       
-      String message = "{\"uuid\":\"" + uuid + "\",\"networkIP\":\"" + networkIP + "\",\"name\":\"" + name + "\",\"vendor\":\"" + board + "\",\"type\":\"" + type + "\",\"firmwareVersion\":" + currentVersion + ",\"secPassword\":\"" + pwdHashString + "\"}";
+      String message = "{\"uuid\":\"" + uuid + "\",\"networkIP\":\"" + networkIP + "\",\"name\":\"" + name + "\",\"vendor\":\"" + board + "\",\"type\":\"" + ucType + "\",\"firmwareVersion\":" + currentVersion + ",\"secPassword\":\"" + pwdHashString + "\"}";
 
       int httpCode = httpClient.POST(message);
 
@@ -322,9 +368,9 @@ bool getBridgeConfig() {
   String urlString = bridgeURL + "/" + apiVersion + "/bridge/" + getUUID();
 
   if(urlString.startsWith("https://hub"))
-    httpClient.begin(urlString, ssl_fingerprint_prod);
+    httpClient.begin(urlString, prodCertificate);
   else if(urlString.startsWith("https://test"))
-    httpClient.begin(urlString, ssl_fingerprint_test);
+    httpClient.begin(urlString, testCertificate);
   else
     httpClient.begin(urlString);
 
@@ -625,12 +671,20 @@ void configureExpansionPort(int portNumber, JsonObject& portConfig) {
     calc = new SensorCalculationDirectPPM(portNumber);  
   else if (portConfig["s"]["cf"] == "DIRECT_NONE")
     calc = new SensorCalculationDirectNone(portNumber);
+  else if (portConfig["s"]["cf"] == "DIRECT_WPM2")
+    calc = new SensorCalculationDirectWpm2(portNumber);
   else if (portConfig["s"]["cf"] == "CALC_METER")
     calc = new SensorCalculationCalcAltitude(portNumber);
   else if (portConfig["s"]["cf"] == "CALC_RAW_PERCENT")
     calc = new SensorCalculationRawToPercent(portConfig["c1"], portConfig["c2"], portNumber);
   else if (portConfig["s"]["cf"] == "RAW")
     calc = new SensorCalculationRaw(portNumber);
+  else if (portConfig["s"]["cf"] == "RAW_A")
+    calc = new SensorCalculationRaw(portNumber, "a");
+  else if (portConfig["s"]["cf"] == "RAW_B")
+    calc = new SensorCalculationRaw(portNumber, "b");
+  else if (portConfig["s"]["cf"] == "RAW_C")
+    calc = new SensorCalculationRaw(portNumber, "c");
   else if (portConfig["s"]["cf"] == "CALC_RAW_VREF")
     calc = new SensorCalculationRawToVoltage(portConfig["c1"], portConfig["c2"], portNumber);
 
@@ -691,6 +745,15 @@ void configureExpansionPort(int portNumber, JsonObject& portConfig) {
   {    
     addSensor(new SensorBH1750(portConfig["id"], portConfig["c"], portConfig["sn"], portConfig["n"], portConfig["ec1"], portConfig["ec2"], refreshInterval, postDataInterval, portConfig["s"]["svt"], calc));
   }
+  else if (portConfig["et"] == "VEML6075")
+  {    
+    addSensor(new SensorVEML6075(portConfig["id"], portConfig["c"], portConfig["sn"], portConfig["n"], portConfig["ec1"], portConfig["ec2"], refreshInterval, postDataInterval, portConfig["s"]["svt"], calc));
+  }
+  else if (portConfig["et"] == "SI1145")
+  {    
+    addSensor(new SensorSI1145(portConfig["id"], portConfig["c"], portConfig["sn"], portConfig["n"], portConfig["ec1"], portConfig["ec2"], refreshInterval, postDataInterval, portConfig["s"]["svt"], calc));
+  }
+
   
 }
 
@@ -733,12 +796,20 @@ void configurePort(int portNumber, JsonObject& portConfig) {
     calc = new SensorCalculationDirectPPM(portNumber);
   else if (portConfig["s"]["cf"] == "DIRECT_NONE")
     calc = new SensorCalculationDirectNone(portNumber);
+  else if (portConfig["s"]["cf"] == "DIRECT_WPM2")
+    calc = new SensorCalculationDirectWpm2(portNumber);
   else if (portConfig["s"]["cf"] == "CALC_METER")
     calc = new SensorCalculationCalcAltitude(portNumber);
   else if (portConfig["s"]["cf"] == "CALC_RAW_PERCENT")
     calc = new SensorCalculationRawToPercent(portConfig["c1"], portConfig["c2"], portNumber);
   else if (portConfig["s"]["cf"] == "RAW")
     calc = new SensorCalculationRaw(portNumber);
+  else if (portConfig["s"]["cf"] == "RAW_A")
+    calc = new SensorCalculationRaw(portNumber, "a");
+  else if (portConfig["s"]["cf"] == "RAW_B")
+    calc = new SensorCalculationRaw(portNumber, "b");
+  else if (portConfig["s"]["cf"] == "RAW_C")
+    calc = new SensorCalculationRaw(portNumber, "c");
   else if (portConfig["s"]["cf"] == "CALC_RAW_VREF")
     calc = new SensorCalculationRawToVoltage(portConfig["c1"], portConfig["c2"], portNumber);
     
@@ -1073,9 +1144,9 @@ boolean postSensorData(Data* data[], int dataCount)
   String urlString = bridgeURL + "/" + apiVersion + "/data/" + getUUID() + "/" + requestDataString;
 
   if(urlString.startsWith("https://hub"))
-    httpClient.begin(urlString, ssl_fingerprint_prod);
+    httpClient.begin(urlString, prodCertificate);
   else if(urlString.startsWith("https://test"))
-    httpClient.begin(urlString, ssl_fingerprint_test);
+    httpClient.begin(urlString, testCertificate);
   else
     httpClient.begin(urlString);
   

@@ -3,7 +3,7 @@
     @file     SensorCalculation.cpp
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP8266 firmware is used to connect ESP8266 based hardware 
+    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
     with the Sensate Cloud and the Sensate apps.
 
     ----> https://www.sensate.io
@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
 /**************************************************************************/
@@ -150,6 +151,13 @@ SensorCalculationDirectNone::SensorCalculationDirectNone(int portNumber) : Senso
   _portNumber = portNumber;
 }
 
+SensorCalculationDirectWpm2::SensorCalculationDirectWpm2(int portNumber) : SensorCalculation()
+{
+  _valueType = "irradiance";
+  _valueUnit = "W/m²";
+  _portNumber = portNumber;
+}
+
 SensorCalculationCalcAltitude::SensorCalculationCalcAltitude(int portNumber) : SensorCalculation()
 {
   _valueType = "altitude";
@@ -181,6 +189,14 @@ SensorCalculationRaw::SensorCalculationRaw(int portNumber) : SensorCalculation()
   _valueUnit = "";
   _portNumber = portNumber;
 }
+
+SensorCalculationRaw::SensorCalculationRaw(int portNumber, String valueUnit) : SensorCalculation()
+{
+  _valueType = valueUnit;
+  _valueUnit = "";
+  _portNumber = portNumber;
+}
+
 
 Data* SensorCalculation::calculate(Sensor* sensor, float rawValue, bool postData)
 {
@@ -319,6 +335,15 @@ Data* SensorCalculationDirectPPM::calculate(Sensor* sensor, float rawValue, bool
   if(!postData)
     return NULL;
   return new Data (sensor, rawValue, "PPM");
+}
+
+Data* SensorCalculationDirectWpm2::calculate(Sensor* sensor, float rawValue, bool postData)
+{
+  if(display!=NULL && _portNumber>=0)
+    display->drawValue(_portNumber, sensor->getName(), sensor->getShortName(), rawValue, _valueUnit);
+  if(!postData)
+    return NULL;
+  return new Data (sensor, rawValue, "WPM2");
 }
 
 Data* SensorCalculationDirectNone::calculate(Sensor* sensor, float rawValue, bool postData)

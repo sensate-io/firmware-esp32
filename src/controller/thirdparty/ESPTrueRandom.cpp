@@ -27,7 +27,7 @@ ICACHE_FLASH_ATTR int ESPTrueRandomClass::randomBitRaw(void) {
   }
   uint8_t bit = useRNG
 	  ? (int)RANDOM_REG32 //using the onboard hardware random number generator (esp8266_peri.h)
-	  : analogRead(A0);     //using A0 / TOUT
+	  : analogRead(36);     //using ADC1_CH0 / TOUT
 
   return bit & 1;
 }

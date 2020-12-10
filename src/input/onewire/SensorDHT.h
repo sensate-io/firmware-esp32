@@ -3,7 +3,7 @@
     @file     SensorDHT.h
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP8266 firmware is used to connect ESP8266 based hardware 
+    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
     with the Sensate Cloud and the Sensate apps.
 
     ----> https://www.sensate.io
@@ -71,7 +71,6 @@ class SensorDHT : public Sensor {
     static DHT_Unified* dht33;
     DHT_Unified* dht;
     float lastPostedValue = NAN;
-    static void portFix(uint8_t);
   protected:
     Data* read(bool);
     void preCycle(int);

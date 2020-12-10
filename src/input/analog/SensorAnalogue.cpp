@@ -3,7 +3,7 @@
     @file     SensorAnalogue.cpp
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP8266 firmware is used to connect ESP8266 based hardware 
+    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
     with the Sensate Cloud and the Sensate apps.
 
     ----> https://www.sensate.io
@@ -23,12 +23,14 @@ extern int powerMode;
 SensorAnalogue::SensorAnalogue (long id, String category, String shortName, String name, uint8_t port, int refreshInterval, int postDataInterval, float smartValueThreshold, SensorCalculation* calculation) : Sensor (id, category, shortName, name, refreshInterval, postDataInterval, smartValueThreshold, calculation, false) {
   
   pinMode(port, INPUT);
+    
   _port = port;
 }
 
 SensorAnalogue::SensorAnalogue (long id, String category, String shortName, String name, int rSplit, uint8_t port, int refreshInterval, int postDataInterval, float smartValueThreshold, SensorCalculation* calculation) : Sensor (id, category, shortName, name, refreshInterval, postDataInterval, smartValueThreshold, calculation, false) {
   
   pinMode(port, INPUT);
+
   _port = port;
   _rSplit = rSplit;
 }

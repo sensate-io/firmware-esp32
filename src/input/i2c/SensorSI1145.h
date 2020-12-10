@@ -1,6 +1,6 @@
 /**************************************************************************/
 /*!
-    @file     SensorBH1750.h
+    @file     SensorSI1145.h
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
     The Sensate ESP32 firmware is used to connect ESP32 based hardware 
@@ -11,28 +11,31 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
-    v34 - First Public Release (Feature parity with ESP8266 Release v34)
+    v35 - Added Support for VEML6075 and SI1145 UVI Sensors
 */
 /**************************************************************************/
 
-#include <Wire.h>
-
-#ifndef _SensorBH1750_h_
-#define _SensorBH1750_h_
+#ifndef _SensorSI1145_h_
+#define _SensorSI1145_h_
 
 #include "../Sensor.h"
-#include "thirdparty/BH1750.h"
+// #include <Adafruit_SI1145.h>
+#include <SI1145_WE.h>
 
-class SensorBH1750 : public Sensor {
+class SensorSI1145 : public Sensor {
   private:
-    static BH1750 *bh1750;
+    // static Adafruit_SI1145 *si1145;
+    static SI1145_WE *si1145;
+    static boolean failedInit;
+    static int lastCycleId;
     float lastPostedValue = NAN;
   protected:
     Data* read(bool);
     void preCycle(int);
     boolean smartSensorCheck(float, float, boolean);
+    float calcLux(uint16_t vis, uint16_t ir);
   public:
-    SensorBH1750 (long, String, String, String, String, String, int, int, float, SensorCalculation*);
+    SensorSI1145 (long, String, String, String, String, String, int, int, float, SensorCalculation*);
 };
 
 #endif

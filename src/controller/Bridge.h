@@ -3,7 +3,7 @@
     @file     Bridge.h
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP8266 firmware is used to connect ESP8266 based hardware 
+    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
     with the Sensate Cloud and the Sensate apps.
 
     ----> https://www.sensate.io
@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
 /**************************************************************************/
@@ -34,6 +35,8 @@
 #include "../input/i2c/SensorBME680.h"
 #include "../input/i2c/SensorMax44009.h"
 #include "../input/i2c/SensorBH1750.h"
+#include "../input/i2c/SensorVEML6075.h"
+#include "../input/i2c/SensorSI1145.h"
 #include "../input/onewire/SensorDHT.h"
 #include "../input/onewire/SensorDallas.h"
 #include "../output/display/DisplayOLED128.h"
