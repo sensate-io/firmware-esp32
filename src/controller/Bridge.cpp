@@ -18,6 +18,8 @@
 
 #include "Bridge.h"
 
+#define maxSensorCount 25
+
 extern State state;
 extern bool isResetting;
 extern StaticJsonBuffer<10000> jsonBuffer;
@@ -53,9 +55,6 @@ uint8_t i2cSCLPort;
 unsigned long nextSensorDue = -1;
 
 char pwdHash[41] = "";
-
-#define ssl_fingerprint_prod "E9 A9 3D E2 AD AB C2 96 FA 3C A7 A8 57 DE 8E A0 95 59 9B 7A" 
-#define maxSensorCount 25
 
 String bridgeURL;
 
