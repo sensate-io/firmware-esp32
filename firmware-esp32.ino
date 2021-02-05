@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp32.git
 
     @section  HISTORY
+    v39 - Changed automatic Update to only if required Update (skipping versions to be on par with ESP8266)
     v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
@@ -24,7 +25,7 @@
 
 Display* display = NULL;
 
-int currentVersion = 35; 
+int currentVersion = 39; 
 boolean printMemory = false;
 
 String board = "Generic";
@@ -228,7 +229,7 @@ void initSensate() {
         break;
       default : 
         Serial.println("STATE: Check_Firmware");
-        tryFirmwareUpdate();
+        tryFirmwareUpdate("");
         break;
     }
   }

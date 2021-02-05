@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v39 - Changed automatic Update to only if required Update
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
 /**************************************************************************/
@@ -26,7 +27,7 @@ extern int currentVersion;
 
 WiFiClient wifiClient;
 
-void tryFirmwareUpdate() {
+void tryFirmwareUpdate(String fwUpdateToken) {
 
   Serial.println("Trying firmware Update...");
   
@@ -38,7 +39,7 @@ void tryFirmwareUpdate() {
     display->drawString(20, 21, "Update...");
   }
 
-  String updatePath = "http://hub.sensate.cloud/v1/bridge/firmware?version="+String(currentVersion)+"&type="+firmwareType;
+  String updatePath = "http://hub.sensate.cloud/v1/bridge/firmware/"+fwUpdateToken+"?version="+String(currentVersion)+"&type="+firmwareType;
 
   Serial.println(updatePath);
   
@@ -70,6 +71,7 @@ void tryFirmwareUpdate() {
 
       }
 
-  state = Connected_WiFi;
+  if(state==Check_Firmware)
+    state = Connected_WiFi;
 
 }

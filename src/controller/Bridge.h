@@ -19,12 +19,15 @@
 #include <Esp.h>
 #include <EEPROM.h>
 #include <HTTPClient.h>
+#include <esp_int_wdt.h>
+#include <esp_task_wdt.h>
 
 #ifndef _Bridge_h_
 #define _Bridge_h_
 
 #include "StateHelper.h"
 #include "UUID.h"
+#include "OTA.h"
 #include "../communication/WiFiManager.h"
 #include "../communication/MQTT.h"
 #include "../input/Sensor.h"
