@@ -31,9 +31,6 @@ boolean printMemory = false;
 String board = "Generic";
 char firmwareType[] = "ESP32";
 
-// String board = "M5StickC";
-// char firmwareType[] = "ESP32-M5StickC";
-
 // String board = "DevKitC";
 // char firmwareType[] = "ESP32-DevKitC";
 
