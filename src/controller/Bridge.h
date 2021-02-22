@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v40 - New Display Structure to enable Display Rotation, different Styles etc.
     v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
@@ -43,6 +44,7 @@
 #include "../input/onewire/SensorDHT.h"
 #include "../input/onewire/SensorDallas.h"
 #include "../output/display/DisplayOLED128.h"
+#include "../output/VisualisationHelper.h"
 
 bool registerBridge();
 void restoreBridgeConfig();
@@ -50,10 +52,13 @@ void restart();
 
 bool getBridgeConfig();
 void configureBridge(JsonObject&);
+void initVisualisationHelper(JsonObject&);
+void configureDisplayValueData(int, JsonObject&);
 void configureExpansionPort(int, JsonObject&);
 void configurePort(int, JsonObject&);
 void addSensor(Sensor *);
 void loopSensor(int);
+void loopDisplay(unsigned long);
 boolean postSensorData(Data* data[], int);
 void checkStatus();
 void trySleep(long);

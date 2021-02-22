@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v40 - New Display Structure to enable Display Rotation, different Styles etc.
     v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
 */
@@ -67,6 +68,8 @@ bool serverError = false;
 int registerRetry = 0;
 int configRetry = 0;
 int sensorCycle = 1;
+
+extern VisualisationHelper* vHelper;
 
 const char* prodCertificate =  //hub.sensate.cloud
 "-----BEGIN CERTIFICATE-----\n" \
@@ -425,6 +428,7 @@ bool getBridgeConfig() {
           else
           {
             portNumber++;
+            configureDisplayValueData(portRow, configEntry);
           }
       
           if (configEntry.containsKey("et"))
@@ -441,8 +445,8 @@ bool getBridgeConfig() {
           display->clear(false);
           display->drawProductLogo();
           display->drawString(0, 10, "Waiting for sensors...");
+          initVisualisationHelper(bridgeConfig);
         }
-
       }
 
       jsonBuffer.clear();
@@ -549,6 +553,29 @@ void configureBridge(JsonObject& bridgeConfig) {
   doPowerSavingInit(false);
 }
 
+void initVisualisationHelper(JsonObject& bridgeConfig) {
+
+  int simultanValueCount;
+
+  if(displayHeight==64)
+    simultanValueCount = 4;
+  else if(displayHeight==32)
+    simultanValueCount = 2;
+
+  unsigned long displayCycleInterval = bridgeConfig["di"];
+  
+  if(displayCycleInterval==0)
+  {
+    Serial.println("Display cycle disabled (Interval = 0)");
+  }
+  else
+  {
+    vHelper->enableDisplayCycle(millis(), simultanValueCount, displayCycleInterval);
+  }
+  
+
+}
+
 void storeDisplayAndPowerConfig(boolean withPowerSettings) {
 
 // Display Config
@@ -647,6 +674,12 @@ void tryInitMQTT() {
   }
 
   yield();
+
+}
+
+void configureDisplayValueData(int portNumber, JsonObject& portConfig) {
+
+  vHelper->getDisplayDataModel()->setData(portNumber, new DisplayValueData(portNumber, portConfig["n"], portConfig["sn"], "WAIT"));
 
 }
 
@@ -770,7 +803,6 @@ void configureExpansionPort(int portNumber, JsonObject& portConfig) {
     addSensor(new SensorSI1145(portConfig["id"], portConfig["c"], portConfig["sn"], portConfig["n"], portConfig["ec1"], portConfig["ec2"], refreshInterval, postDataInterval, portConfig["s"]["svt"], calc));
   }
 
-  
 }
 
 void configurePort(int portNumber, JsonObject& portConfig) {
@@ -991,12 +1023,20 @@ void loopSensor(int currentTimeMs) {
   }
 }
 
+void loopDisplay(unsigned long currentTimeMs) {
+  if(display!=NULL)
+  {
+    display->drawData(currentTimeMs);
+  }
+}
+
 void trySleep(long microseconds)
 {
     // Serial.println("Power Mode... "+String(powerMode));
 
     if(powerMode==2 && microseconds>0)
     {
+      loopDisplay(millis());
       doPowerSaving();
       Serial.println("Going to deep sleep for "+String(microseconds));
       ESP.deepSleep(microseconds);
