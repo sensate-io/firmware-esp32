@@ -67,6 +67,7 @@ bool serverError = false;
 
 int registerRetry = 0;
 int configRetry = 0;
+int postSensorDataRetry = 0;
 int sensorCycle = 1;
 
 extern VisualisationHelper* vHelper;
@@ -1205,19 +1206,26 @@ boolean postSensorData(Data* data[], int dataCount)
     httpClient.begin(urlString, testCertificate);
   else
     httpClient.begin(urlString);
+
+  Serial.print("p");
   
   int httpCode = httpClient.PUT("");
 
   if (httpCode == HTTP_CODE_UPGRADE_REQUIRED)
   {
+    Serial.print("u");
+
     httpClient.end();
     restart();
     return true;
   }
   else if (httpCode == HTTP_CODE_OK)
   {
+    Serial.print("o");
+
     if(serverError || wasDisconnected)
     {
+      postSensorDataRetry=0;
       serverError = false;
       wasDisconnected = false;
       if(display!=NULL)
@@ -1252,6 +1260,8 @@ boolean postSensorData(Data* data[], int dataCount)
   }
   else
   {
+    Serial.print("e");
+
     if(display!=NULL)
     {
       wasDisconnected=true;
@@ -1265,6 +1275,16 @@ boolean postSensorData(Data* data[], int dataCount)
     Serial.println(WiFi.status());
 
     httpClient.end();
+
+    postSensorDataRetry++;
+
+    if(postSensorDataRetry>=25)
+    {
+      postSensorDataRetry=0;
+      restart();
+    }
+
+    Serial.println("Retry #"+String(postSensorDataRetry)+", restart at 25");
   }
   return false;
 }
