@@ -218,7 +218,7 @@ bool registerBridge()
     Serial.println("Failed to register Bridge");
     return false;
   }
-
+  return false;
 }
 
 void restoreBridgeConfig() {
@@ -517,7 +517,7 @@ void configureBridge(JsonObject& bridgeConfig) {
     displayEnabled = false;
   }
 
-  if(displayType!=0 && (oldSCL != i2cSCLPort || oldSDA != i2cSDAPort || oldDisplayWidth != displayWidth || oldDisplayHeight != displayHeight) || (display!=NULL && display->getType()!=displayType))
+  if((displayType!=0) && (((oldSCL != i2cSCLPort) || (oldSDA != i2cSDAPort) || (oldDisplayWidth != displayWidth) || (oldDisplayHeight != displayHeight)) || ((display!=NULL) && (display->getType()!=displayType))))
   {
     Serial.println("CREATE TEMP DISPLAY for new I2C Bus!");
     boolean rotateDisplay = (displayRotation == 180);
@@ -1046,7 +1046,7 @@ void trySleep(long microseconds)
 
 void doPowerSaving() {
 
-    if(powerSavePort!=NULL && !powerSavePort.length()>0)
+    if((powerSavePort!=NULL) && (!(powerSavePort.length()>0)))
     {
         Serial.println("Switching Power Save Port: "+powerSavePort);
 

@@ -35,7 +35,7 @@ Ads1x15::Ads1x15 (long id, String category, String shortName, String name, Strin
   _preResistor = (float) preResistor;
   _postResistor = (float) postResistor;
 
-  if (addressString == NULL | addressString == "" || addressString == "0x48") {
+  if ((addressString == NULL) || (addressString == "") || (addressString == "0x48")) {
     if (!init48)
     {
       init48 = true;

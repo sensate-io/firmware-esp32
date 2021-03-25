@@ -83,6 +83,7 @@ void Sensor::preCycle(int cycleId)
 
 Data* Sensor::read(bool shouldPostData) {
   Serial.println("Base Sensor Read: " + getName());
+  return NULL;
 }
 
 Data* Sensor::trySensorRead(unsigned long currentTimeMillis, int cycleId) {
