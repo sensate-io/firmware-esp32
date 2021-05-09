@@ -11,7 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp32.git
 
     @section  HISTORY
-    v41 - Changed IDE, Sensatio
+    v41 - Changed IDE, Sensatio, Renamed Display Class to support more types
 */
 /**************************************************************************/
 
@@ -27,7 +27,7 @@
 
 //add your includes for the project Sensatio_FW_ESP32 here
 #include "src/controller/Bridge.h"
-#include "src/output/display/DisplayOLED128.h"
+#include "src/output/display/Display.h"
 #include "src/communication/WiFiManager.h"
 #include "src/controller/OTA.h"
 #include "src/communication/RestServer.h"

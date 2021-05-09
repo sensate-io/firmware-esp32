@@ -36,6 +36,7 @@ class VisualisationHelper {
     void enableDisplayCycle(unsigned long, int, unsigned long);
     void disableDisplayCycle();
     DisplayValueData* getDataForPosition(unsigned long, int);
+    void updateSimultanValueCount(int);
 };
 
 #endif

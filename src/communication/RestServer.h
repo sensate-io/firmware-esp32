@@ -3,10 +3,10 @@
     @file     RestServer.h
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
-    with the Sensate Cloud and the Sensate apps.
+    The Sensatio ESP32 firmware is used to connect ESP32 based hardware
+    with the Sensatio Cloud and the Sensatio apps.
 
-    ----> https://www.sensate.io
+    ----> https://www.sensatio.io
 
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
@@ -24,7 +24,7 @@
 
 #include "../controller/StateHelper.h"
 #include "../controller/UUID.h"
-#include "../output/display/DisplayOLED128.h"
+#include "../output/display/Display.h"
 #include "../communication/WiFiManager.h"
 #include "MQTT.h"
 

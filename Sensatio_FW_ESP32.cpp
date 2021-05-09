@@ -11,7 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp32.git
 
     @section  HISTORY
-    v41 - Changed IDE, Sensatio
+    v41 - Changed IDE, Sensatio, Renamed Display Class to support more types
     v40 - New Display Structure to enable Display Rotation, different Styles etc.
     v39 - Changed automatic Update to only if required Update (skipping versions to be on par with ESP8266)
     v35 - Added Support for VEML6075 and SI1145 UVI Sensors
@@ -24,11 +24,11 @@
 VisualisationHelper* vHelper;
 Display* display = NULL;
 
-int currentVersion = 40;
+int currentVersion = 41;
 boolean printMemory = false;
 
-String board = "Generic";
-char firmwareType[] = "ESP32";
+//String board = "Generic";
+//char firmwareType[] = "ESP32";
 
 // String board = "DevKitC";
 // char firmwareType[] = "ESP32-DevKitC";
@@ -36,8 +36,8 @@ char firmwareType[] = "ESP32";
 // String board = "ESP32S";
 // char firmwareType[] = "ESP32-S";
 
-// String board = "ESP-WROOM-32";
-// char firmwareType[] = "ESP32-WROOM";
+ String board = "ESP-WROOM-32";
+ char firmwareType[] = "ESP32-WROOM";
 
 // String board = "M5StickC";
 // char firmwareType[] = "ESP32-M5StickC";
@@ -61,12 +61,15 @@ unsigned long previousTickerMillis = 0;
 unsigned long currentMillis;
 State state = Boot;
 
-esp_sleep_wakeup_cause_t resetInfo;
+int displayMode;
+boolean displayEnabled;
+int displayType;
+int displayHeight;
+int displayWidth;
+int displayRotation;
+bool firstSensorData;
 
-extern int displayType;
-extern boolean displayEnabled;
-extern int displayRotation;
-extern int displayMode;
+esp_sleep_wakeup_cause_t resetInfo;
 
 extern uint8_t i2cSDAPort;
 extern uint8_t i2cSCLPort;
@@ -108,7 +111,15 @@ void setup()
   {
     boolean rotateDisplay = (displayRotation == 180);
 
-    display = new Display(rotateDisplay, displayType,"",i2cSDAPort,i2cSCLPort);
+    switch(displayType)
+	{
+		case 3:
+			display = new DisplayST7735(rotateDisplay, displayType);
+			break;
+		default:	// Fallback to OLED init
+			display = new DisplayOLED128(displayWidth, displayHeight, rotateDisplay, displayType,"",i2cSDAPort,i2cSCLPort);
+			break;
+	}
 
     if(!displayEnabled)
       display->clear(true);

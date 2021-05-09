@@ -3,14 +3,15 @@
     @file     Bridge.h
     @author   M. Fegerl (Sensate Digital Solutions GmbH)
     @license  GPL (see LICENSE file)
-    The Sensate ESP32 firmware is used to connect ESP32 based hardware 
-    with the Sensate Cloud and the Sensate apps.
+    The Sensatio ESP32 firmware is used to connect ESP32 based hardware
+    with the Sensatio Cloud and the Sensatio apps.
 
-    ----> https://www.sensate.io
+    ----> https://www.sensatio.io
 
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v41 - Renamed Display Class to support more types
     v40 - New Display Structure to enable Display Rotation, different Styles etc.
     v35 - Added Support for VEML6075 and SI1145 UVI Sensors
     v34 - First Public Release (Feature parity with ESP8266 Release v34)
@@ -23,8 +24,8 @@
 #include <esp_int_wdt.h>
 #include <esp_task_wdt.h>
 
-#ifndef _Bridge_h_
-#define _Bridge_h_
+#ifndef _BRIDGE_H_
+#define _BRIDGE_H_
 
 #include "StateHelper.h"
 #include "UUID.h"
@@ -43,7 +44,9 @@
 #include "../input/i2c/SensorSI1145.h"
 #include "../input/onewire/SensorDHT.h"
 #include "../input/onewire/SensorDallas.h"
+#include "../output/display/Display.h"
 #include "../output/display/DisplayOLED128.h"
+#include "../output/display/DisplayST7735.h"
 #include "../output/VisualisationHelper.h"
 
 bool registerBridge();
