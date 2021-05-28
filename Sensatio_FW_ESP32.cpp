@@ -24,20 +24,20 @@
 VisualisationHelper* vHelper;
 Display* display = NULL;
 
-int currentVersion = 41;
+int currentVersion = 42;
 boolean printMemory = false;
 
 //String board = "Generic";
 //char firmwareType[] = "ESP32";
 
-// String board = "DevKitC";
-// char firmwareType[] = "ESP32-DevKitC";
+ String board = "DevKitC";
+ char firmwareType[] = "ESP32-DevKitC";
 
 // String board = "ESP32S";
 // char firmwareType[] = "ESP32-S";
 
- String board = "ESP-WROOM-32";
- char firmwareType[] = "ESP32-WROOM";
+// String board = "ESP-WROOM-32";
+// char firmwareType[] = "ESP32-WROOM";
 
 // String board = "M5StickC";
 // char firmwareType[] = "ESP32-M5StickC";

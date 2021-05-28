@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v42 - Fixed low memory issues in configurations with many sensors and a ST7735 Bug
     v41 - Renamed Display Class to support more types
     v40 - New Display Structure to enable Display Rotation, different Styles etc.
     v35 - Added Support for VEML6075 and SI1145 UVI Sensors
@@ -71,5 +72,6 @@ void doPowerSavingInit(boolean);
 uint8_t translateGPIOPort(String);
 uint8_t translateAnalogueGPIOPort(String);
 void tryInitMQTT();
+void handlePortConfigArray(JsonArray&);
 
 #endif
