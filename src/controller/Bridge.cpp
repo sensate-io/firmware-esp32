@@ -11,6 +11,8 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v44 - More Memory Improvements
+    v43 - Fixed data transmit issues in configurations with many sensors
     v42 - Fixed low memory issues in configurations with many sensors and a ST7735 Bug
     v41 - Renamed Display Class to support more types
     v40 - New Display Structure to enable Display Rotation, different Styles etc.
@@ -28,7 +30,6 @@ extern bool isResetting;
 extern StaticJsonBuffer<10000> jsonBuffer;
 extern String apiVersion;
 extern int currentVersion;
-extern char firmwareType[];
 
 extern int powerMode;
 extern Display* display;
@@ -39,8 +40,6 @@ extern int displayHeight;
 extern int displayWidth;
 extern int displayRotation;
 extern boolean printMemory;
-
-extern struct rst_info resetInfo;
 
 extern String name;
 extern String board;
@@ -77,6 +76,10 @@ extern VisualisationHelper* vHelper;
 
 int portNumber = 0;
 bool foundPorts = false;
+
+String urlString;
+String requestDataString;
+String payload;
 
 const char* prodCertificate =  //hub.sensate.cloud
 "-----BEGIN CERTIFICATE-----\n" \
@@ -124,7 +127,7 @@ const char* testCertificate =  //test.sensate.cloud
 "mshx5oPkM80P0lIyYSqbX9EEeQmAiQkWR1CJ4n/Kk/ubNW/F\n" \
 "-----END CERTIFICATE-----\n";
 
-bool registerBridge()
+void registerBridge()
 {
   if(display!=NULL)
   {
@@ -143,7 +146,7 @@ bool registerBridge()
 
       HTTPClient httpClient;
 
-      String urlString = bridgeURL + "/" + apiVersion + "/bridge/";
+      urlString = bridgeURL + "/" + apiVersion + "/bridge/";
 
       if(urlString.startsWith("https://hub"))
         httpClient.begin(urlString, prodCertificate);
@@ -168,20 +171,20 @@ bool registerBridge()
 
       if (httpCode == HTTP_CODE_OK)
       {
-        String payload = httpClient.getString();
+        payload = httpClient.getString();
         if (payload == uuid)
         {
           registerRetry=0;
           state = Init_Configuration;
           httpClient.end();
-          return true;
+          return;
         }          
       }
       else if (httpCode == HTTP_CODE_UPGRADE_REQUIRED)
       {
         httpClient.end();
         restart();
-        return false;
+        return;
       }
       else
       {
@@ -194,20 +197,19 @@ bool registerBridge()
             httpClient.end();
             Serial.println("Registering not possible, going back to Deep Sleep for 5 minutes.");
             trySleep(300000000);
-            return false;
+            return;
           }
           else if (registerRetry>=25)
           {
             httpClient.end();
             restart();
-            return false;
+            return;
           }
         }
       }
       
       httpClient.end();
-      return false;
-
+      return;
     }
     else
     {
@@ -222,9 +224,7 @@ bool registerBridge()
   else
   {
     Serial.println("Failed to register Bridge");
-    return false;
   }
-  return false;
 }
 
 void restoreBridgeConfig() {
@@ -361,7 +361,7 @@ void restart() {
   ESP.restart();
 }
 
-bool getBridgeConfig() {
+void getBridgeConfig() {
 
   Serial.println("Getting Bridge Config from " + bridgeURL);
 
@@ -374,7 +374,7 @@ bool getBridgeConfig() {
     display->drawString(0, 10, "Waiting for config...");
   }
 
-  String urlString = bridgeURL + "/" + apiVersion + "/bridge/" + getUUID();
+  urlString = bridgeURL + "/" + apiVersion + "/bridge/" + getUUID();
 
   if(urlString.startsWith("https://hub"))
     httpClient.begin(urlString, prodCertificate);
@@ -389,7 +389,7 @@ bool getBridgeConfig() {
 
   if (httpCode == HTTP_CODE_OK)
   {
-    String payload = httpClient.getString();
+    payload = httpClient.getString();
     httpClient.end();
 
     portNumber = 0;
@@ -438,14 +438,14 @@ bool getBridgeConfig() {
 
 				Serial.println("Fetching port page "+String(i));
 
-				String pageUrlString = bridgeURL + "/" + apiVersion + "/bridge/" + getUUID() + "/" + String(i);
+				urlString = bridgeURL + "/" + apiVersion + "/bridge/" + getUUID() + "/" + String(i);
 
-				if(pageUrlString.startsWith("https://hub"))
-					httpClient.begin(pageUrlString, prodCertificate);
-				else if(pageUrlString.startsWith("https://test"))
-					httpClient.begin(pageUrlString, testCertificate);
+				if(urlString.startsWith("https://hub"))
+					httpClient.begin(urlString, prodCertificate);
+				else if(urlString.startsWith("https://test"))
+					httpClient.begin(urlString, testCertificate);
 				else
-					httpClient.begin(pageUrlString);
+					httpClient.begin(urlString);
 
 				httpClient.addHeader("Content-Type", "application/json");
 
@@ -456,12 +456,12 @@ bool getBridgeConfig() {
 				{
 					Serial.print("o");
 
-					String pagePayload = httpClient.getString();
+					payload = httpClient.getString();
 					httpClient.end();
 
-					if (pagePayload != NULL && pagePayload != "")
+					if (payload != NULL && payload != "")
 					{
-						JsonObject& bridgePortConfig = jsonBuffer.parseObject(pagePayload);
+						JsonObject& bridgePortConfig = jsonBuffer.parseObject(payload);
 						if(bridgePortConfig.containsKey("p"))
 						{
 							JsonArray& pagedPortConfigArray = bridgePortConfig["p"];
@@ -475,7 +475,6 @@ bool getBridgeConfig() {
 
 				yield();
 			}
-
 
       }
 
@@ -494,7 +493,7 @@ bool getBridgeConfig() {
       if(foundPorts)
         state = Operating;
 
-      return true;
+      return;
     }
   }
 
@@ -506,7 +505,6 @@ bool getBridgeConfig() {
     Serial.println("Fetching configuration not possible, going back to Deep Sleep for 5 minutes.");
     trySleep(300000000);
   }
-  return false;
 
 }
 
@@ -773,10 +771,9 @@ void configureDisplayValueData(int portNumber, JsonObject& portConfig) {
 
 
 void configureExpansionPort(int portNumber, JsonObject& portConfig) {
-  Serial.println("Configure Expansion Port: ");
+  Serial.print("Configure Expansion Port: ");
 
-  portConfig.prettyPrintTo(Serial);
-  Serial.println("");
+  //portConfig.prettyPrintTo(Serial);
   
   SensorCalculation* calc = NULL;
 
@@ -861,7 +858,7 @@ void configureExpansionPort(int portNumber, JsonObject& portConfig) {
   else if (portConfig["et"] == "DHT11" || portConfig["et"] == "DHT21" || portConfig["et"] == "DHT22")
   {
     uint8_t port = translateGPIOPort(portConfig["ec1"]);
-    if(port>=0)
+    if(port<99)
     {
       addSensor(new SensorDHT(portConfig["id"], portConfig["c"], portConfig["sn"], portConfig["n"], portConfig["et"], port, refreshInterval, postDataInterval, portConfig["s"]["svt"], calc));
     }
@@ -897,9 +894,10 @@ void configurePort(int portNumber, JsonObject& portConfig) {
   
   String port = portConfig["p"];
   
-  Serial.println("Configure Onboard Port:" + port);
+  Serial.print("Configure Onboard Port:");
+  Serial.println(port);
 
-  portConfig.prettyPrintTo(Serial);
+  //portConfig.prettyPrintTo(Serial);
   Serial.println("");
 
   SensorCalculation* calc = NULL;
@@ -971,7 +969,7 @@ void configurePort(int portNumber, JsonObject& portConfig) {
 
   uint8_t aPort = translateAnalogueGPIOPort(port);
 
-  if (aPort!=255)
+  if (aPort<99)
   {
     if(portConfig["c1"]!=0 && portConfig["c2"]==0)
     {
@@ -985,10 +983,11 @@ void configurePort(int portNumber, JsonObject& portConfig) {
   else
   {
     uint8_t intPort = translateGPIOPort(port);
-    if(intPort!=255)
+    if(intPort<99)
     {
-      Serial.println("Setting up Digital Switch at Port: " + port);
-      addSensor(new SensorDigitalSwitch(portConfig["id"], portConfig["c"], portConfig["sn"], portConfig["n"], intPort, refreshInterval, postDataInterval, calc));
+    	Serial.print("Setting up Digital Switch at Port: ");
+    	Serial.println(port);
+    	addSensor(new SensorDigitalSwitch(portConfig["id"], portConfig["c"], portConfig["sn"], portConfig["n"], intPort, refreshInterval, postDataInterval, calc));
     }
     else
       Serial.println("Invalid Port specified? check config! " + port);
@@ -1076,7 +1075,9 @@ void loopSensor(int currentTimeMs) {
     if(!abortDelay)
     {
       int delayTime=100*retry;  
-      Serial.println("Communication Issues - Retrying in "+String(delayTime)+"ms ");
+      Serial.print("Communication Issues - Retrying in ");
+      Serial.print(delayTime);
+      Serial.println("ms ");
       yield();
       delay(delayTime);
     }
@@ -1135,7 +1136,8 @@ void doPowerSaving() {
 
     if((powerSavePort!=NULL) && (!(powerSavePort.length()>0)))
     {
-        Serial.println("Switching Power Save Port: "+powerSavePort);
+    	Serial.print("Switching Power Save Port: ");
+		Serial.println(powerSavePort);
 
         int port = translateGPIOPort(powerSavePort);
 
@@ -1154,7 +1156,8 @@ void doPowerSavingInit(boolean doDelay) {
 
   if(powerSavePort!="")
   {
-    Serial.println("Init Power Save Port: "+powerSavePort);
+	Serial.print("Init Power Save Port: ");
+	Serial.println(powerSavePort);
 
     int port = translateGPIOPort(powerSavePort);
 
@@ -1165,7 +1168,8 @@ void doPowerSavingInit(boolean doDelay) {
     }
     else
     {
-      Serial.println("No valid Power Save Port defined: "+powerSavePort);
+    	Serial.print("No valid Power Save Port defined: ");
+    	Serial.println(powerSavePort);
     }
   }
   else
@@ -1230,7 +1234,7 @@ uint8_t translateGPIOPort(String gpioPort)
   if(gpioPort=="33")
     return 33;  		
 
-  return 255;
+  return 99;
 }
 
 uint8_t translateAnalogueGPIOPort(String gpioPort)
@@ -1268,24 +1272,96 @@ uint8_t translateAnalogueGPIOPort(String gpioPort)
   if(gpioPort=="A39")
     return 39;  
 
-  return 255;
+  return 99;
 }
 
 boolean postSensorData(Data* data[], int dataCount)
 {
+	if(printMemory)
+	{
+		Serial.print("HEAP: ");
+		Serial.println(ESP.getFreeHeap());
+	}
+
+	boolean success = true;
+
+	if(dataCount<=5)
+	{
+		success = postSensorDataPart(data, 0, dataCount-1);
+	}
+	else
+	{
+		Serial.print("s");
+		Serial.print(dataCount);
+
+		int start = 0;
+		int end = 4;
+
+		while(end<=dataCount)
+		{
+			if(!postSensorDataPart(data, start, end))
+				success = false;
+
+			yield();
+
+			if(printMemory)
+			{
+				Serial.print("HEAP: ");
+				Serial.println(ESP.getFreeHeap());
+			}
+
+			start+=5;
+			end+=5;
+
+			if(start>dataCount-1)
+				break;
+			if(end>dataCount-1)
+				end = dataCount-1;
+		}
+	}
+
+	if(!success)
+	{
+		postSensorDataRetry++;
+
+		if(postSensorDataRetry>=25)
+		{
+		  postSensorDataRetry=0;
+		  restart();
+		}
+
+		Serial.print("Retry #");
+		Serial.print(postSensorDataRetry);
+		Serial.println(", restart at 25");
+	}
+
+	return success;
+}
+
+
+boolean postSensorDataPart(Data* data[], int startIndex, int endIndex)
+{
   HTTPClient httpClient;
 
-  String requestDataString = "";
+  requestDataString = "";
 
-  for (int i = 0; i < dataCount; i++)
+  for (int i = startIndex; i <= endIndex; i++)
   {
-    if (i == 0)
-      requestDataString = data[i]->getRequestString();
-    else
-      requestDataString = requestDataString + "," + data[i]->getRequestString();
+	  if (i > startIndex)
+	  {
+		requestDataString += ",";
+	  }
+	  requestDataString += data[i]->getRequestString();
   }
 
-  String urlString = bridgeURL + "/" + apiVersion + "/data/" + getUUID() + "/" + requestDataString;
+  urlString = "";
+  urlString += bridgeURL;
+  urlString += "/";
+  urlString += apiVersion ;
+  urlString += "/data/";
+  urlString += getUUID();
+  urlString += "/";
+  urlString += requestDataString;
 
   if(urlString.startsWith("https://hub"))
     httpClient.begin(urlString, prodCertificate);
@@ -1319,7 +1395,8 @@ boolean postSensorData(Data* data[], int dataCount)
         display->drawConnected(true);
     }
 
-    String payload = httpClient.getString();
+    payload = httpClient.getString();
+    httpClient.end();
 
     if(payload!=NULL && displayType!=0)
     {
@@ -1352,7 +1429,6 @@ boolean postSensorData(Data* data[], int dataCount)
       }
     }
 
-    httpClient.end();
     return true;
   }
   else
@@ -1366,22 +1442,16 @@ boolean postSensorData(Data* data[], int dataCount)
     }
       
     serverError = true;
-    Serial.println("Server Error: "+String(httpCode));
 
-    Serial.println("Server Error: "+httpClient.errorToString(httpCode));
+    Serial.print("\nServer Error: ");
+	Serial.print(httpCode);
+	Serial.print(" - ");
+	Serial.print(httpClient.errorToString(httpCode));
+	Serial.print(" - WIFI: ");
     Serial.println(WiFi.status());
 
     httpClient.end();
 
-    postSensorDataRetry++;
-
-    if(postSensorDataRetry>=25)
-    {
-      postSensorDataRetry=0;
-      restart();
-    }
-
-    Serial.println("Retry #"+String(postSensorDataRetry)+", restart at 25");
   }
   return false;
 }

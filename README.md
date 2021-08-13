@@ -1,9 +1,9 @@
 # firmware-esp32
 
-The Sensate ESP32 firmware is used to connect ESP32 based hardware with the Sensate Cloud and the Sensate apps.
-Find out more at https://www.sensate.io
+The Sensatio ESP32 firmware is used to connect ESP32 based hardware with the Sensatio Cloud and the Sensatio apps.
+Find out more at https://www.sensatio.io
 
-# The Sensate Firmware for ESP32 currently uses the following Libraries:
+# The Sensatio Firmware for ESP32 currently uses the following Libraries:
 
 - Arduino IDE ESP32 Base Library (https://github.com/espressif/arduino-esp32 v1.0.5)
 - ArduinoJson (https://github.com/bblanchon/ArduinoJson v5.13.5)
@@ -26,7 +26,7 @@ Windows, Linux and Mac Users:
 Use pyflasher from https://github.com/marcelstoer/nodemcu-pyflasher/releases for flashing the firmware.
 
 Find more informations here:
-https://www.sensate.io
+https://www.sensatio.io
 
 And here in German:
-https://www.sensate.io/de
+https://www.sensatio.io/de

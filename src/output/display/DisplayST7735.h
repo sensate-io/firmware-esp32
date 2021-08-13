@@ -11,6 +11,7 @@
     SOURCE: https://github.com/sensate-io/firmware-esp8266.git
 
     @section  HISTORY
+    v42 - Fixed Umlaut Handling
     v41 - New Display Type ST7735, New Display Mode
 */
 /**************************************************************************/

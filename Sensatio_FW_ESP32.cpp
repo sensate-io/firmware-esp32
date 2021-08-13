@@ -11,6 +11,10 @@
     SOURCE: https://github.com/sensate-io/firmware-esp32.git
 
     @section  HISTORY
+    v45 - Fixed Pressure Measurement for BME280 Sensors
+    v44 - More Memory Improvements
+    v43 - Fixed data transmit issues in configurations with many sensors
+    v42 - Fixed low memory issues in configurations with many sensors and a ST7735 Bug
     v41 - Changed IDE, Sensatio, Renamed Display Class to support more types
     v40 - New Display Structure to enable Display Rotation, different Styles etc.
     v39 - Changed automatic Update to only if required Update (skipping versions to be on par with ESP8266)
@@ -24,7 +28,7 @@
 VisualisationHelper* vHelper;
 Display* display = NULL;
 
-int currentVersion = 42;
+int currentVersion = 45;
 boolean printMemory = false;
 
 //String board = "Generic";
@@ -45,7 +49,7 @@ boolean printMemory = false;
 String name = "Bridge";
 String ucType = "ESP32";
 
-String variant = "SensateV"+String(currentVersion)+board;
+String variant = "SensatioV"+String(currentVersion)+board;
 
 String apiVersion = "v1";
 
@@ -75,6 +79,10 @@ extern uint8_t i2cSDAPort;
 extern uint8_t i2cSCLPort;
 extern MQTT* mqtt;
 
+extern String urlString;
+extern String requestDataString;
+extern String payload;
+
 #define tickerInterval 250
 #define delayInterval 10000
 
@@ -83,12 +91,16 @@ void setup()
 {
   EEPROM.begin(398);
 
-	Serial.begin(9600);
+  Serial.begin(9600);
   Serial.println("---------------------------");
   Serial.println(variant);
   Serial.println("---------------------------");
   Serial.println("Startup: ");
   Serial.println(getUUID());
+
+  urlString.reserve(300);
+  requestDataString.reserve(200);
+  payload.reserve(1000);
 
   restoreBridgeConfig();
 
